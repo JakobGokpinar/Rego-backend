@@ -5,7 +5,7 @@ const cors = require('cors');
 const MongoDbStore = require('connect-mongo');
 const socketio = require('socket.io');
 
-const config = require('./config/config');
+// const config = require('./config/config');
 const connectDB = require('./config/db.js');
 
 var authRouter = require('./auth');
@@ -19,8 +19,8 @@ var profileSettingsRouter = require('./profileSettings.js');
 
 const app = express();
 
-const PORT = config.PORT;
-const MONGO_URI = config.db.mongoURI;
+// const PORT = config.PORT;
+const MONGO_URI = process.env.MONGO_URI;
 
 // Connecting to database
 connectDB();
@@ -61,10 +61,10 @@ app.use('/searchproduct', searchProductRouter)
 app.use('/favorites', addFavoritesRouter);
 app.use('/profile', profileSettingsRouter)
 
-const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-// const server = app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`));
+// const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(3080, "0.0.0.0", () => console.log(`Server running on`));
 
-const io = socketio(server, {
+/* const io = socketio(server, {
     pingTimeout: 60000,
 });
 
@@ -76,5 +76,5 @@ io.on('connection', (socket) => {
         console.log(userData._id);
         socket.emit('connected')
     })
-})
+}) */
 module.exports = app;
