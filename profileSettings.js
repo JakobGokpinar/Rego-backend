@@ -5,11 +5,12 @@ const multerS3 = require('multer-s3');
 const config = require('../aws-config.js');
 const UserModel = require("./models/UserModel.js");
 const ObjectId = require('mongoose').Types.ObjectId;
+require('dotenv').config();
 
-const BUCKET_NAME = config.awsS3User.BUCKET_NAME;
-const ACCESS_KEY = config.awsS3User.ACCESS_KEY;
-const SECRET_KEY = config.awsS3User.SECRET_ACCESS_KEY;
-const REGION = config.awsS3User.BUCKET_REGION;
+const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+const ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+const SECRET_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const REGION = process.env.AWS_BUCKET_REGION;
 
 const s3 = new AWS.S3({
     accessKeyId: ACCESS_KEY,

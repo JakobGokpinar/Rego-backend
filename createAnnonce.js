@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk'); //call AWS services using APIs.
+require("dotenv").config();
 const multer = require('multer');   //dosya yükleme işlemi için kullanılır
 const multerS3 = require('multer-s3');
 const mongoose = require('mongoose');
@@ -10,10 +11,10 @@ const aws_config_file = require('../aws-config.js');
 const AnnonceModel = require('./models/AnnonceModel.js');
 const UserModel = require('./models/UserModel.js');
 
-const BUCKET_NAME = aws_config_file.awsS3User.BUCKET_NAME;
-const ACCESS_KEY = aws_config_file.awsS3User.ACCESS_KEY;
-const SECRET_KEY = aws_config_file.awsS3User.SECRET_ACCESS_KEY;
-const REGION = aws_config_file.awsS3User.BUCKET_REGION;
+const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+const ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+const SECRET_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const REGION = process.env.AWS_BUCKET_REGION;
 
 // configure s3
 const s3 = new AWS.S3({

@@ -4,14 +4,14 @@ const bcrypt = require('bcrypt');
 const Strategy  = require("passport-local").Strategy;
 const { OAuth2Client } = require('google-auth-library');
 var validator = require('validator');
+require('dotenv').config();
 
 const UserModel = require('./models/UserModel.js');
 const GoogleUserModel = require('./models/GoogleUserModel.js');
 const config = require('../aws-config.js');
 
 
-const GOOGLE_CLIENT_ID = config.google.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = config.google.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 
 // ####### FUNCTONS #######
 

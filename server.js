@@ -61,8 +61,8 @@ app.use('/searchproduct', searchProductRouter)
 app.use('/favorites', addFavoritesRouter);
 app.use('/profile', profileSettingsRouter)
 
-//const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-const server = app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// const server = app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`));
 
 const io = socketio(server, {
     pingTimeout: 60000,
