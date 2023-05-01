@@ -30,7 +30,8 @@ app.use(express.json({limit: '50mb'}))  // setting limit to 50mb in order to sav
 
 app.use(express.urlencoded({ extended: false, limit: '50mb'})); //setting limit for the same reason
 
-app.use(cors({origin:'http://localhost:3000', credentials: true}));
+// app.use(cors({origin:'http://localhost:3000', credentials: true}));
+app.use(cors({origin:'https://rego.onrender.com', credentials: true}));
 
 app.use(
     session({
