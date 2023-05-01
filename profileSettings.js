@@ -2,7 +2,6 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const multer = require('multer');   //dosya yükleme işlemi için kullanılır
 const multerS3 = require('multer-s3');
-const config = require('../aws-config.js');
 const UserModel = require("./models/UserModel.js");
 const ObjectId = require('mongoose').Types.ObjectId;
 require('dotenv').config();

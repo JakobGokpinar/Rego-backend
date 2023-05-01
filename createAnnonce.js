@@ -7,7 +7,6 @@ const express = require('express');
 const crypto = require('crypto');   //to create annonce id 
 const ObjectId = require('mongoose').Types.ObjectId;
 
-const aws_config_file = require('../aws-config.js');
 const AnnonceModel = require('./models/AnnonceModel.js');
 const UserModel = require('./models/UserModel.js');
 

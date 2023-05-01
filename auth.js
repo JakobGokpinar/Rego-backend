@@ -8,7 +8,6 @@ require('dotenv').config();
 
 const UserModel = require('./models/UserModel.js');
 const GoogleUserModel = require('./models/GoogleUserModel.js');
-const config = require('../aws-config.js');
 
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
@@ -152,7 +151,7 @@ signup = (req, res, next) => {
         let name = req.body.name;
         let lastname = req.body.lastname;
         let username = name + " " + lastname;
-
+        console.log(name, lastname)
         UserModel.findOneAndUpdate({ email: email}, {name, lastname,username});
 
         return res.json({  user, message: 'user created'})    //info: LocalStrategy'deki done metodundaki verileri döner

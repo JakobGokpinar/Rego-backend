@@ -23,9 +23,6 @@ const UserSchema = new Schema({
     profilePicture: {
         type: String,
     },
-    postnumber: {
-        type: String
-    },
     annonces: {
         type: Array
     },
