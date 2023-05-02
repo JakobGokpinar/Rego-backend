@@ -42,7 +42,7 @@ const s3 = new AWS.S3({
       },
     }),
     fileFilter: checkFileType
-  }).array('annonceImages',4);  //post request atarken kullanılması gerekn key değeri ve aynı anda maks. kaç dosya yüklenebilir
+  }).array('annonceImages',10);  //post request atarken kullanılması gerekn key değeri ve aynı anda maks. kaç dosya yüklenebilir
 
 uploadImagesToAws = (req, res, info) => {
   // return res.json({message: 'You have to login to upload files'});
