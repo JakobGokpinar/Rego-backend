@@ -153,6 +153,7 @@ signup = (req, res, next) => {
         let lastname = req.body.lastname;
         let username = name + " " + lastname;
 
+        
         UserModel.findOneAndUpdate({ email: email}, {name, lastname,username}, {new: true, useFindAndModify: false})
         .then(data => {
             console.log("donen data", data)
