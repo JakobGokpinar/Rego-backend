@@ -35,6 +35,7 @@ passport.use('local-signin', new Strategy({ usernameField: 'email'}, async (emai
             if (err) throw err;
             if (!isMatch) return done(null,false, {message: 'Wrong password'})
             // return user with no error
+            console.log('passport local sign in', user)
             return done(null,user)
         })
     })
@@ -100,11 +101,13 @@ getDecodedOAuthJwtGoogle = async (token) => {
 
 // giris yapan kullanıcıyı session'la
 passport.serializeUser((user, done) => {
+    console.log('serialize user', user)
     done(null, user.id)
 })
 // kullanıcıdan istek geldiğinde doğrula
 passport.deserializeUser((id, done) => {
     UserModel.findById(id, (err, user) => {
+        console.log('deserialize user', user)
         done(err,user)
     })
 })
@@ -131,6 +134,7 @@ googleAuthentication = async (req, res, next) => {
 signin = async (req, res, next) => {
     // local strategy'i kullan
     passport.authenticate("local-signin", function(err, user, info) {
+        console.log('sign in ', user)
         if (err)  return next(err) //res.json(err);     email validator kullanıldığı zaman geçerli 
         // if user doesn't exist return the message from done function in LocalStrategy
         if (!user) return res.json(info) 

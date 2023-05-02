@@ -45,7 +45,7 @@ const s3 = new AWS.S3({
   }).array('annonceImages',10);  //post request atarken kullanılması gerekn key değeri ve aynı anda maks. kaç dosya yüklenebilir
 
 uploadImagesToAws = (req, res, info) => {
-    if (!req.isAuthenticated()) return res.json({message: 'You have to login to upload files'});
+    if (!req.isAuthenticated()) return res.status(300).json({message: 'You have to login to upload files'});
     const user = req.user.email;  //bucket'da her kullanıcı için bir klasör var.
    
     var annonceId = null;
