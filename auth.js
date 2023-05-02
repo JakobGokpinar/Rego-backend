@@ -152,8 +152,8 @@ signup = (req, res, next) => {
         let lastname = req.body.lastname;
         let username = name + " " + lastname;
         console.log(name, lastname)
-        UserModel.findOneAndUpdate({ email: email}, {name, lastname,username});
-
+        const doc = UserModel.findOneAndUpdate({ email: email}, {name, lastname,username}, {new: true});
+        console.log(doc)
         return res.json({  user, message: 'user created'})    //info: LocalStrategy'deki done metodundaki verileri döner
     })(req, res, next);
 } 
