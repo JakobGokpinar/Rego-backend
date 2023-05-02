@@ -33,6 +33,7 @@ app.use(express.urlencoded({ extended: false, limit: '50mb'})); //setting limit 
 // app.use(cors({origin:'http://localhost:3000', credentials: true}));
 app.use(cors({origin:'https://rego.onrender.com', credentials: true}));
 app.enable('trust proxy')
+// app.set('trust proxy', 2)
 app.use(
     session({
         name: 'signin-cookie',
@@ -44,6 +45,8 @@ app.use(
             mongoUrl: MONGO_URI
         }),
         cookie: {
+            sameSite: 'none',
+            secure: true,
             maxAge: 1000 * 60 * 60 * 24 * 30  //1 ay. milisaniye x saniye x dakika x saat
         }
     })
