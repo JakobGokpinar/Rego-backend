@@ -59,11 +59,12 @@ function getStatus(value) {
   return status;
 }
 
+
 findProducts = async (req, res) => {
   const queryObject = {};
   let queryParams = req.body;
-  const userId = req.user ? req.user.id : ''
-
+  const userId = req.user ? req.user.id : null
+  console.log(userId)
   for (const param in queryParams) {
     if (param === "q") Object.assign(queryObject, getTitle(queryParams[param]));
   }
@@ -79,14 +80,17 @@ findProducts = async (req, res) => {
   Object.assign(queryObject, getLocation(queryParams["kommune"]));
 
   let favoriteProducts = [];
-  UserModel.findOne({ _id: ObjectId(userId) })
+
+  if(userId) {
+    UserModel.findOne({ _id: ObjectId(userId) })
     .then((result) => {
       favoriteProducts = result.favorites;
     })
     .catch((error) => {
       console.log(error);
     });
-
+  }
+  
   AnnonceModel.find(queryObject)
     .then((result) => {
       var catArr = [];
@@ -119,7 +123,7 @@ findProducts = async (req, res) => {
     .catch((err) => {
       console.log(err);
       res
-        .status(200)
+        .status(300)
         .json({
           error: err,
           message: "Error occured while searching products",
