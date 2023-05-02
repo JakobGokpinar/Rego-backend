@@ -32,13 +32,14 @@ app.use(express.urlencoded({ extended: false, limit: '50mb'})); //setting limit 
 
 // app.use(cors({origin:'http://localhost:3000', credentials: true}));
 app.use(cors({origin:'https://rego.onrender.com', credentials: true}));
-
+app.enable('trust proxy')
 app.use(
     session({
         name: 'signin-cookie',
         secret: "very secret key",
         resave: false,
         saveUninitialized: true,
+        proxy: true,
         store: MongoDbStore.create({
             mongoUrl: MONGO_URI
         }),
