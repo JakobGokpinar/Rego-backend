@@ -152,11 +152,10 @@ signup = (req, res, next) => {
         let name = req.body.name;
         let lastname = req.body.lastname;
         let username = name + " " + lastname;
-        console.log('email', email)
-        console.log(name, lastname)
-        UserModel.findOneAndUpdate({ email: email}, {name, lastname,username}, {new: true})
+
+        UserModel.findOneAndUpdate({ email: email}, {name, lastname,username}, {new: true, useFindAndModify: false})
         .then(data => {
-            console.log(data)
+            console.log("donen data", data)
             return res.json({  user, message: 'user created'})    //info: LocalStrategy'deki done metodundaki verileri döner            
         })
         .catch(err => {
