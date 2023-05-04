@@ -73,7 +73,7 @@ saveAnnonceToDatabase = (req, res) => {
     const annonceProps = req.body.annonceproperties;
     const annonceImages = req.body.imagelocations;
     const annonceId = req.body.annonceid;
-    console.log(user, annonceId, annonceImages, annonceProps)
+
     let newAnnonce = AnnonceModel(annonceProps)
     newAnnonce._id = new ObjectId(annonceId);
     newAnnonce.annonceImages = annonceImages;

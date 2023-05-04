@@ -3,9 +3,7 @@ const session = require('express-session');
 const passport = require('passport');
 const cors = require('cors');
 const MongoDbStore = require('connect-mongo');
-const socketio = require('socket.io');
-
-// const config = require('./config/config');
+var cron = require('node-cron');
 const connectDB = require('./config/db.js');
 
 var authRouter = require('./auth');
@@ -69,17 +67,8 @@ app.use('/profile', profileSettingsRouter)
 // const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const server = app.listen(3080, "0.0.0.0", () => console.log(`Server running on`));
 
-/* const io = socketio(server, {
-    pingTimeout: 60000,
+cron.schedule('* 10 * * *', () => {
+    fetch('https://rego-api.onrender.com', {method: 'GET'}).then(() => console.log('server pinned'))
 });
 
-io.on('connection', (socket) => {
-    console.log('connected to socket.io');
-
-    socket.on('setup', (userData) => {
-        socket.join(userData._id);
-        console.log(userData._id);
-        socket.emit('connected')
-    })
-}) */
 module.exports = app;

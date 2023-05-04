@@ -144,7 +144,6 @@ signin = async (req, res, next) => {
 // yeni kullanıcılar için sign up metodu
 signup = (req, res, next) => {
     passport.authenticate("local-signup", function(err, user, info) {
-        console.log('sign up user', user)
         if (err)  return next(err);       
         if (!user) return res.json(info);
 
