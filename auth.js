@@ -2,8 +2,9 @@ var express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const Strategy  = require("passport-local").Strategy;
-const { OAuth2Client } = require('google-auth-library');
 var validator = require('validator');
+var passwordValidator = require('password-validator');
+const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config();
 
 const UserModel = require('./models/UserModel.js');
@@ -49,8 +50,23 @@ passport.use('local-signup', new Strategy({ usernameField: 'email'}, async (emai
         // check if user exists
         const userExists = await UserModel.findOne({ 'email': email})
         if (userExists) {
-            return done(null, false, {message: 'user already exists'})
+            return done(null, false, {message: 'This user already exists'})
         }
+        if(validator.isEmail(email) === false) {
+            return done(null, false, { message: 'Please provide a valid email' })
+        }
+
+        var passwordSchema = new passwordValidator();
+        passwordSchema.is().min(6);
+        passwordSchema.is().max(32);
+        passwordSchema.has().lowercase();
+        passwordSchema.has().uppercase();
+        passwordSchema.has().digits(1);
+
+        if(!passwordSchema.validate(password)) {
+            return done(null, false, { message: 'Password must contain at least one number and one uppercase and lowercase letter, and be between 6 and 32 characters'})
+        }
+
         // create new user with the provided data
         const user = await UserModel.create({ email, password });
         return done(null, user, { message: 'user created'})
