@@ -3,8 +3,12 @@ const session = require('express-session');
 const passport = require('passport');
 const cors = require('cors');
 const MongoDbStore = require('connect-mongo');
+const { Server } = require('socket.io'); 
+const http = require('http');
 var cron = require('node-cron');
 const connectDB = require('./config/db.js');
+const UserModel = require('./models/UserModel.js')
+const ObjectId = require('mongoose').Types.ObjectId
 
 var authRouter = require('./auth');
 var userRouter = require('./fetchUser.js');
@@ -14,8 +18,15 @@ var findProductRouter = require('./findProduct.js');
 var searchProductRouter = require('./searchProduct.js');
 var addFavoritesRouter = require('./addfavorites.js');
 var profileSettingsRouter = require('./profileSettings.js');
+var chatRouter = require('./chat.js');
 
 const app = express();
+var server = http.createServer(app); 
+const io = new Server(server, {
+    cors: {
+        origin: 'https://www.rego.live/'
+    }
+})
 
 // const PORT = config.PORT;
 const MONGO_URI = process.env.MONGO_URI;
@@ -62,13 +73,75 @@ app.use('/search', searchRouter)
 app.use('/product', findProductRouter)
 app.use('/searchproduct', searchProductRouter)
 app.use('/favorites', addFavoritesRouter);
-app.use('/profile', profileSettingsRouter)
+app.use('/profile', profileSettingsRouter);
+app.use('/chat', chatRouter)
+
+let connectedUsers = [];
+
+const addUser = (userId, socketId) => {
+    !connectedUsers.some(user => user.userId === userId) &&
+        connectedUsers.push({ userId, socketId })
+}
+const removeUser = (socketId) => {
+    connectedUsers = connectedUsers.filter(user => user.socketId !== socketId)
+}
+const findUser = (userId) => {
+    return connectedUsers.find(user => user.userId === userId)
+}
+
+io.on('connection', (socket) => {
+    //when connect
+    socket.on('addUser', (userId) => {  
+        addUser(userId, socket.id)
+        io.emit('getUsers', connectedUsers)
+    })
+
+    //send message
+    socket.on('sendMessage', ({ msg, sentAt, sender, receiver }) => {
+        let friend = findUser(receiver);
+        if(!friend) return;
+        io.to(friend.socketId).emit('getMessage', {
+            sender,
+            msg,
+            sentAt
+        })
+    })
+
+    //on typing
+    socket.on('userTyping', ({ typer, receiver }) => {
+        let friend = findUser(receiver);
+        if(!friend) return;
+        io.to(friend.socketId).emit('getTyping', {
+            typer, receiver
+        })
+    })
+
+    socket.on('stoppedTyping', ({ typer, receiver }) => {
+        let friend = findUser(receiver);
+        if(!friend) return;
+        io.to(friend.socketId).emit('getStoppedTyping', {
+            typer, receiver
+        })
+    })
+    //when logging out
+    socket.on('logout', async () => {
+        let user = connectedUsers.find(user => user.socketId === socket.id)
+        removeUser(socket.id)
+        if(!user) return;
+        await UserModel.updateOne({ _id: ObjectId(user.userId) }, { $set: { lastActiveAt: Date.now() }})
+    })
+
+    //when disconnect
+    socket.on('disconnect', async () => {
+        let user = connectedUsers.find(user => user.socketId === socket.id)
+        if(!user) return;
+        removeUser(socket.id)
+        io.emit('getUsers', connectedUsers)
+        await UserModel.updateOne({ _id: ObjectId(user.userId) }, { $set: { lastActiveAt: Date.now() }})
+    })
+})
 
 // const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-const server = app.listen(3080, "0.0.0.0", () => console.log(`Server running on`));
-
-cron.schedule('* 10 * * *', () => {
-    fetch('https://rego-api.onrender.com', {method: 'GET'}).then(() => console.log('server pinned'))
-});
+server.listen(3080, "0.0.0.0", () => console.log(`Server running on`));
 
 module.exports = app;

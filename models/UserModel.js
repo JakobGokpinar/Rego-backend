@@ -5,11 +5,9 @@ const {Schema} = mongoose
 const UserSchema = new Schema({
     name: {
         type: String,
-        required: true
     },
     lastname: {
         type: String,
-        required: true
     },
     username: {
         type: String
@@ -31,6 +29,12 @@ const UserSchema = new Schema({
     favorites: {
         type: Array
     },
+    messages: {
+        type: Array
+    },
+    lastActiveAt: {
+        type: Date
+    },
     userCreatedAt: {
         type: Date,
         default: Date.now,
@@ -42,7 +46,6 @@ UserSchema.methods.toJSON = function() {    //remove the user's password before 
     const user = this;
     const userObject = user.toObject();
     delete userObject.password;
-    delete userObject.postnumber;
     return userObject;
 }
 

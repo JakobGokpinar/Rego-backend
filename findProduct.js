@@ -23,16 +23,16 @@ findProduct = async (req, res) => {
         var result = await AnnonceModel.findOne({ _id: ObjectId(productId)});
         var seller = await UserModel.findOne({_id: ObjectId(result.sellerId)});
         var sellerObj = {
-            username: seller.username,
-            userDate: seller.userCreatedAt,
-            userProfilePicture: seller.profilePicture
+            username: seller?.username,
+            userDate: seller?.userCreatedAt,
+            userProfilePicture: seller?.profilePicture
         }
     
         let matchedIndex = favoritesArray.indexOf(result._id)
         if(matchedIndex !== -1) {
             result["isFavorite"] = true;
         } 
-        return res.status(200).json({ product: result, seller: sellerObj, message: 'Product is found' }) 
+        return res.status(200).json({ product: result, seller, message: 'Product is found' }) 
     } catch (error) {
         return res.status(300).json({error, message: 'Error occured while getting the annonce'})
     }

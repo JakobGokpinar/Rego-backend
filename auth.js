@@ -10,7 +10,6 @@ require('dotenv').config();
 const UserModel = require('./models/UserModel.js');
 const GoogleUserModel = require('./models/GoogleUserModel.js');
 
-
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 
 // ####### FUNCTONS #######
@@ -29,12 +28,12 @@ passport.use('local-signin', new Strategy({ usernameField: 'email'}, async (emai
     UserModel.findOne({ email: email}).then(user =>  {
         // check if email exists
         if (!user) {
-            return done(null,false, {message: 'User not found.'});
+            return done(null,false, {message: 'Feil email address'});
         }
         // check if passwords matches
         bcrypt.compare(password, user.password, (err, isMatch) => {
             if (err) throw err;
-            if (!isMatch) return done(null,false, {message: 'Wrong password'})
+            if (!isMatch) return done(null,false, {message: 'Feil passord'})
             // return user with no error
             return done(null,user)
         })
@@ -50,10 +49,10 @@ passport.use('local-signup', new Strategy({ usernameField: 'email'}, async (emai
         // check if user exists
         const userExists = await UserModel.findOne({ 'email': email})
         if (userExists) {
-            return done(null, false, {message: 'This user already exists'})
+            return done(null, false, {message: 'Denne e-postadressen er allerede registrert i systemet.'})
         }
         if(validator.isEmail(email) === false) {
-            return done(null, false, { message: 'Please provide a valid email' })
+            return done(null, false, { message: 'Vennligst oppgi en gyldig e-post' })
         }
 
         var passwordSchema = new passwordValidator();
@@ -183,7 +182,7 @@ signup = (req, res, next) => {
 logout = (req, res, next) => {
     // req.logout();   //passport.js logout metodunu kullanarak çıkış yap
     req.session.destroy();  //destroy yapmak db'deki cookie'leri de imha eder. O yüzden daha mantıklı.
-    res.json('user logged out')
+    res.json('user logged out');
 }
 
 // ####### ROUTES #######

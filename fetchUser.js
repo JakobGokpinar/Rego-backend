@@ -4,9 +4,9 @@ const ObjectId = mongoose.Types.ObjectId;
 const UserModel = require("./models/UserModel.js");
 
 fetchUser = (req, res) => {
-    if(!req.isAuthenticated) return;
-    let userId = req.user.id;
-
+    // if(!req.isAuthenticated()) return res.json({ message: 'Du må logge inn'});
+    // let userId = req.user.id;
+    let userId = req.query.userId 
     UserModel.findOne({_id: ObjectId(userId)})
     .then(response => {
         return res.status(200).json({user: response})
