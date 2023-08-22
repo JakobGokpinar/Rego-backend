@@ -5,7 +5,6 @@ const cors = require('cors');
 const MongoDbStore = require('connect-mongo');
 const { Server } = require('socket.io'); 
 const http = require('http');
-var cron = require('node-cron');
 const connectDB = require('./config/db.js');
 const UserModel = require('./models/UserModel.js')
 const ObjectId = require('mongoose').Types.ObjectId
@@ -24,7 +23,7 @@ const app = express();
 var server = http.createServer(app); 
 const io = new Server(server, {
     cors: {
-        origin: 'https://www.rego.live'
+        origin: 'https://www.rego.live '//https://www.rego.live      //http://localhost:3000
     }
 })
 
@@ -39,7 +38,7 @@ app.use(express.json({limit: '50mb'}))  // setting limit to 50mb in order to sav
 
 app.use(express.urlencoded({ extended: false, limit: '50mb'})); //setting limit for the same reason
 
-//app.use(cors({origin:'http://localhost:3000', credentials: true}));
+// app.use(cors({origin:'http://localhost:3000', credentials: true}));
 app.use(cors({origin:'https://www.rego.live', credentials: true}));
 app.enable('trust proxy')
 // app.set('trust proxy', 2)

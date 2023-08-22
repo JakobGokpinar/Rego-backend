@@ -173,6 +173,7 @@ removeAnnonce = async (req, res) => {
 
 removeAnnonceImagesFromAWS = async (req, res) => {
   if(!req.isAuthenticated()) return res.status(300);
+  console.log("sa")
 
   try {
       const userEmail = req.user.email;
