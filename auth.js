@@ -5,6 +5,8 @@ const Strategy  = require("passport-local").Strategy;
 var validator = require('validator');
 var passwordValidator = require('password-validator');
 const { OAuth2Client } = require('google-auth-library');
+const generateUniqueId = require('generate-unique-id');
+const emailVerify = require('./sendEmail.js')
 require('dotenv').config();
 
 const UserModel = require('./models/UserModel.js');
@@ -12,7 +14,7 @@ const GoogleUserModel = require('./models/GoogleUserModel.js');
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 
-// ####### FUNCTONS #######
+// * ####### FUNCTONS #######
 
 /* LocalStrategy bir kullanıcı kaydetme şekli. Local verilen değerleri kullan diyor. 
 Mesela Google hesabı ile kullanıcı açıcak olsaydık Google Strategy kullanırdık 
@@ -70,6 +72,7 @@ passport.use('local-signup', new Strategy({ usernameField: 'email'}, async (emai
         const user = await UserModel.create({ email, password });
         return done(null, user, { message: 'user created'})
     } catch (err) {
+        console.log(err)
         return done(err)
     }
 }))
@@ -157,8 +160,8 @@ signin = async (req, res, next) => {
     })(req, res, next);
 }
 // yeni kullanıcılar için sign up metodu
-signup = (req, res, next) => {
-    passport.authenticate("local-signup", function(err, user, info) {
+signup = async (req, res, next) => {
+    passport.authenticate("local-signup", async function(err, user, info) {
         if (err)  return next(err);       
         if (!user) return res.json(info);
 
@@ -167,14 +170,22 @@ signup = (req, res, next) => {
         let lastname = req.body.lastname;
         let username = name + " " + lastname;
 
-        UserModel.findOneAndUpdate({ email: email}, {name, lastname,username}, {new: true, useFindAndModify: false})
-        .then(data => {
-            return res.json({  user: data, message: 'user created'})    //info: LocalStrategy'deki done metodundaki verileri döner            
-        })
-        .catch(err => {
-            console.log(err)
-            return res.json({  user, message: 'user could not be created'})
-        })
+        try {
+            const data = await UserModel.findOneAndUpdate(
+              { email: email },
+              { name, lastname, username },
+              { new: true, useFindAndModify: false }
+            );                
+                const receiver_email = email;
+                const receiver_username = username;
+                const receiver_id = data._id;
+                const email_verify_token = generateUniqueId();
+                await emailVerify(receiver_email, receiver_username, receiver_id, email_verify_token)
+                res.status(200).json({  success: true, user: data, message: 'user created'})
+        } catch (error) {
+            console.log("🚀 ~ file: auth.js:174 ~ passport.authenticate ~ error:", error)
+            return res.status(500).json({  success: false, user, message: 'user could not be created', err: error.message})
+        }
     })(req, res, next);
 } 
 

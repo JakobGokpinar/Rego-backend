@@ -3,7 +3,7 @@ const AnnonceModel = require("./models/AnnonceModel.js");
 const UserModel = require("./models/UserModel.js");
 const ObjectId = require("mongoose").Types.ObjectId;
 
-function getTitle(value) {
+function getTitle(value) {p
   let title = { title: { $regex: value, $options: "i" } };
   return title;
 }
@@ -59,12 +59,10 @@ function getStatus(value) {
   return status;
 }
 
-
 findProducts = async (req, res) => {
   const queryObject = {};
   let queryParams = req.body;
   const userId = req.user ? req.user.id : null
-  console.log(userId)
   for (const param in queryParams) {
     if (param === "q") Object.assign(queryObject, getTitle(queryParams[param]));
   }

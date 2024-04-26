@@ -39,6 +39,10 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now,
       },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    }
 },{ strict: false}
 );
 
@@ -71,6 +75,5 @@ UserSchema.pre('save', async function (next) {
 
 const myDB = mongoose.connection.useDb('user');
 const UserModel = myDB.model("User", UserSchema);   
-// const UserModel = mongoose.model('User', UserSchema);
 
 module.exports = UserModel;

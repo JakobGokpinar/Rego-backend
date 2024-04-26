@@ -18,12 +18,15 @@ var searchProductRouter = require('./searchProduct.js');
 var addFavoritesRouter = require('./addfavorites.js');
 var profileSettingsRouter = require('./profileSettings.js');
 var chatRouter = require('./chat.js');
+var emailRouter = require('./emailRoute.js')
+
+const client_link = process.env.CLIENT_URL
 
 const app = express();
 var server = http.createServer(app); 
 const io = new Server(server, {
     cors: {
-        origin: 'https://www.rego.live '//https://www.rego.live      //http://localhost:3000
+        origin: client_link //https://www.rego.live      //http://localhost:3000
     }
 })
 
@@ -39,7 +42,7 @@ app.use(express.json({limit: '50mb'}))  // setting limit to 50mb in order to sav
 app.use(express.urlencoded({ extended: false, limit: '50mb'})); //setting limit for the same reason
 
 // app.use(cors({origin:'http://localhost:3000', credentials: true}));
-app.use(cors({origin:'https://www.rego.live', credentials: true}));
+app.use(cors({origin:client_link, credentials: true}));
 app.enable('trust proxy')
 // app.set('trust proxy', 2)
 app.use(
@@ -73,7 +76,8 @@ app.use('/product', findProductRouter)
 app.use('/searchproduct', searchProductRouter)
 app.use('/favorites', addFavoritesRouter);
 app.use('/profile', profileSettingsRouter);
-app.use('/chat', chatRouter)
+app.use('/chat', chatRouter);
+app.use('/email', emailRouter)
 
 let connectedUsers = [];
 

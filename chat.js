@@ -56,12 +56,12 @@ getRoomByCredentials = async (req, res) => {
 
 //add message
 newMessage = async (req, res) => {
+    const roomId = ObjectId(req.body.roomId);
     const newMessage = {
         sender: ObjectId(req.body.sender),
         msg: req.body.msg,
         sentAt: Date.now()
     };
-    const roomId = ObjectId(req.body.roomId);
     try {
         await ConversationModel.updateOne({ _id: roomId}, {
             $push: { messages: newMessage },
