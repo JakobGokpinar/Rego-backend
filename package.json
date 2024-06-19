@@ -4,8 +4,8 @@
   "description": "Server side of the project",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node server.js start",
+    "dev": "nodemon server.js dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "tolga",

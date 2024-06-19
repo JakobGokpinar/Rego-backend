@@ -5,7 +5,7 @@ const cors = require('cors');
 const MongoDbStore = require('connect-mongo');
 const { Server } = require('socket.io'); 
 const http = require('http');
-const connectDB = require('./config/db.js');
+const connectToDatabase = require('./config/db.js');
 const UserModel = require('./models/UserModel.js')
 const ObjectId = require('mongoose').Types.ObjectId
 
@@ -20,44 +20,54 @@ var profileSettingsRouter = require('./profileSettings.js');
 var chatRouter = require('./chat.js');
 var emailRouter = require('./emailRoute.js')
 
+if (process.argv.includes('dev')) {
+    console.log("Development server is started")
+    process.env.NODE_ENV = "development"
+    process.env.CLIENT_URL = process.env.CLIENT_URL_DEV
+    process.env.MONGO_URL = process.env.MONGO_URL_DEV
+} else if (process.argv.includes('start')) {
+    console.log("Production server is started")
+    process.env.NODE_ENV = "production"
+    process.env.CLIENT_URL = process.env.CLIENT_URL_PROD
+    process.env.MONGO_URL = process.env.MONGO_URL_PROD
+}
+
+const isProduction = process.env.NODE_ENV === 'production';
 const client_link = process.env.CLIENT_URL
 
 const app = express();
 var server = http.createServer(app); 
-const io = new Server(server, {
+const io = new Server(server, { 
     cors: {
-        origin: client_link //https://www.rego.live      //http://localhost:3000
+        origin: client_link
     }
 })
 
-// const PORT = config.PORT;
-const MONGO_URI = process.env.MONGO_URI;
+const mongoUrl = process.env.MONGO_URL;
 
 // Connecting to database
-connectDB();
+connectToDatabase(mongoUrl);
 
 app.use(express.json({limit: '50mb'}))  // setting limit to 50mb in order to save 'image encoded data' to server when uploading a new annonce
-// app.use(express.json());
 
 app.use(express.urlencoded({ extended: false, limit: '50mb'})); //setting limit for the same reason
 
-// app.use(cors({origin:'http://localhost:3000', credentials: true}));
 app.use(cors({origin:client_link, credentials: true}));
 app.enable('trust proxy')
-// app.set('trust proxy', 2)
+
 app.use(
     session({
         name: 'signin-cookie',
-        secret: "very secret key",
+        secret: "secret key",
         resave: false,
         saveUninitialized: true,
         proxy: true,
         store: MongoDbStore.create({
-            mongoUrl: MONGO_URI
+            mongoUrl: mongoUrl
         }),
         cookie: {
-            sameSite: 'none',
-            secure: true,
+            sameSite: 'lax',
+            secure: isProduction,
             maxAge: 1000 * 60 * 60 * 24 * 30  //1 ay. milisaniye x saniye x dakika x saat
         }
     })
@@ -144,7 +154,6 @@ io.on('connection', (socket) => {
     })
 })
 
-// const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-server.listen(3080, "0.0.0.0", () => console.log(`Server running on`));
+server.listen(3080, "0.0.0.0", () => console.log(`Server is running...`));
 
 module.exports = app;

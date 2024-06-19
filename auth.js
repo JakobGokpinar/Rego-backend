@@ -30,7 +30,7 @@ passport.use('local-signin', new Strategy({ usernameField: 'email'}, async (emai
     UserModel.findOne({ email: email}).then(user =>  {
         // check if email exists
         if (!user) {
-            return done(null,false, {message: 'Feil email address'});
+            return done(null,false, {message: 'E-postadressen finnes ikke'});
         }
         // check if passwords matches
         bcrypt.compare(password, user.password, (err, isMatch) => {
@@ -126,7 +126,6 @@ passport.deserializeUser((id, done) => {
         done(err,user)
     })
 })
-
 // express'in sağladığı Router servisi
 var router = express.Router();
 
@@ -159,6 +158,7 @@ signin = async (req, res, next) => {
         })
     })(req, res, next);
 }
+
 // yeni kullanıcılar için sign up metodu
 signup = async (req, res, next) => {
     passport.authenticate("local-signup", async function(err, user, info) {
@@ -190,17 +190,29 @@ signup = async (req, res, next) => {
 } 
 
 // çıkış yapan kullanıcılar için logout metodu
-logout = (req, res, next) => {
-    // req.logout();   //passport.js logout metodunu kullanarak çıkış yap
-    req.session.destroy();  //destroy yapmak db'deki cookie'leri de imha eder. O yüzden daha mantıklı.
-    res.json('user logged out');
+logout = (req, res) => {
+    if(req.isAuthenticated()) {
+        req.session.destroy();  //destroy yapmak db'deki cookie'leri de imha eder. O yüzden daha mantıklı.
+        res.json({user: req.user, message: 'user logged out'});
+        return
+    } 
+    res.json()
+}
+
+checkAuthorized = (req, res) => {
+    console.log("🚀 ~ session:", req.session)
+    if(req.isAuthenticated()) {
+        res.json("you have been autherized")
+    } else {
+        res.status(300).json("you have no access")
+    }
 }
 
 // ####### ROUTES #######
-
 router.post('/login', signin);
 router.post('/signup', signup);
 router.delete('/logout',logout)
 router.post('/google/auth', googleAuthentication)
+router.get('/auth',checkAuthorized)
 
   module.exports = router;
