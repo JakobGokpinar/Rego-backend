@@ -16,7 +16,7 @@ verifyEmail = async (req, res) => {
         if(!tokens) return;
         var last_token = tokens[tokens.length - 1];
         if(last_token.token !== token) {
-            return res.json({ success: false, message: 'The session has expired. Please follow the steps in the last sent email'})
+            return res.json({ success: false, message: 'The session has expired. Please try again later'})
         }
         var token_creation_date = new Date(last_token.createdAt)
         var current_date = new Date();

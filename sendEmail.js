@@ -18,7 +18,7 @@ const emailVerify = async (receiver_email, receiver_username, receiver_id, token
   await EmailVerifyToken.create({ userId: receiver_id, token: token})
   const options = emailVerifyTemplate(receiver_email, receiver_username, token)
 
-  // * Send Email
+  // Send Email
   transporter.sendMail(options, (err, info) => {
     if(err) {
       console.log(err)
