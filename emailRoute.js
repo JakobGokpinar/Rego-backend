@@ -45,6 +45,7 @@ sendVerificationEmailforRoute = async (req, res) => {
         const receiver_id = req.body.id;
         const email_verify_token = generateUniqueId();
         await emailVerify(receiver_email, receiver_username, receiver_id, email_verify_token)
+        console.log("🚀 ~ file: emailRoute.js:48 - A new verification email has been sent");
         return res.status(200).json({  success: true, message: 'A new verification email has been sent. Please check your Input or Spam folder.'})
     } catch (error) {
         console.log("🚀 ~ file: emailRoute.js:42 ~ sendVerificationEmailforRoute= ~ error:", error)

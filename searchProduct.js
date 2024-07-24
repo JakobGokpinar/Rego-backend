@@ -3,7 +3,7 @@ const AnnonceModel = require("./models/AnnonceModel.js");
 const UserModel = require("./models/UserModel.js");
 const ObjectId = require("mongoose").Types.ObjectId;
 
-function getTitle(value) {p
+function getTitle(value) {
   let title = { title: { $regex: value, $options: "i" } };
   return title;
 }
