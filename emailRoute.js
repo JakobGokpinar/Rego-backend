@@ -6,7 +6,7 @@ const generateUniqueId = require('generate-unique-id');         //required to ge
 const UserModel = require('./models/UserModel.js');
 
 verifyEmail = async (req, res) => {
-    //*if (!req.isAuthenticated()) return res.json({ message: 'Please login  for verifying'}); 
+    if (!req.isAuthenticated()) return res.json({ status: false, message: 'Please login  for verifying'}); 
     try {
         const userId = req.body.userId
         if (userId !== req.user.id) {
