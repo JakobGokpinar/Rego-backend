@@ -9,6 +9,9 @@ verifyEmail = async (req, res) => {
     //*if (!req.isAuthenticated()) return res.json({ message: 'Please login  for verifying'}); 
     try {
         const userId = req.body.userId
+        if (userId !== req.user.id) {
+            return res.status(300).json({ success: false, message: 'Vennligst logg deg inn med egen mailadresse for konto verifikasjon.'})
+        }
         const token = req.body.token;  
         var tokens = await EmailVerifyToken.find(
             {userId: userId}
@@ -45,7 +48,7 @@ sendVerificationEmailforRoute = async (req, res) => {
         const receiver_id = req.body.id;
         const email_verify_token = generateUniqueId();
         await emailVerify(receiver_email, receiver_username, receiver_id, email_verify_token)
-        console.log("🚀 ~ file: emailRoute.js:48 - A new verification email has been sent");
+        console.log("🚀 ~ file: emailRoute.js:48 - A new email verification email has been sent");
         return res.status(200).json({  success: true, message: 'A new verification email has been sent. Please check your Input or Spam folder.'})
     } catch (error) {
         console.log("🚀 ~ file: emailRoute.js:42 ~ sendVerificationEmailforRoute= ~ error:", error)
