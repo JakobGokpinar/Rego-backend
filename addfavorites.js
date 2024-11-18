@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
-const AnnonceModel = require("./models/AnnonceModel.js");
+const ProductModel = require("./models/ProductModel.js");
 const UserModel = require("./models/UserModel.js");
 
 addToFavorites = async (req, res) => {
@@ -16,7 +16,7 @@ addToFavorites = async (req, res) => {
     return res.json({ message: "The annonce already saved to Favorites" });
   }
 
-  AnnonceModel.findOne({ _id: ObjectId(annonceId) })
+  ProductModel.findOne({ _id: ObjectId(annonceId) })
     .then((response) => {
       var annonce = response._id;
       UserModel.findByIdAndUpdate(
@@ -79,7 +79,7 @@ getFavorites = (req, res) => {
       const favoritesArray = result.favorites;
       if (favoritesArray.length <= 0) return res.json({ productArray: [] });
 
-      AnnonceModel.find()
+      ProductModel.find()
         .then((result) => {
           const intersection = result.filter((element) =>
             favoritesArray.includes(element._id)

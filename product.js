@@ -7,7 +7,7 @@ const express = require('express');
 const crypto = require('crypto');   //to create annonce id 
 const ObjectId = require('mongoose').Types.ObjectId;
 
-const AnnonceModel = require('./models/AnnonceModel.js');
+const ProductModel = require('./models/ProductModel.js');
 const UserModel = require('./models/UserModel.js');
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
@@ -22,6 +22,25 @@ const s3 = new AWS.S3({
     region: REGION,
   });
 
+  uploadImagesToAws = (req, res, info) => {
+    if (!req.isAuthenticated()) return res.json({message: 'You have to login to upload files'});
+    const user = "ahmettabar2003@gmail.com";
+   
+    var annonceId = crypto.randomBytes(12).toString('hex')
+    
+    const fileLocation = user + '/annonce-' + annonceId
+    const uploadImages = uploadMult(`${BUCKET_NAME}/${fileLocation}`)
+
+    uploadImages(req, res, err => {
+        if (err){
+            console.log(err)
+            res.status(400).json({message: 'files could not uploaded'})
+            return;
+        }
+        res.json({ files: req.files, message: 'images uploaded'})
+    })
+}
+
   const checkFileType = (req, file, cb) => {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/jpg" || file.mimetype === "image/png") {
       cb(null, true);
@@ -30,10 +49,11 @@ const s3 = new AWS.S3({
     }
   };
 
-  const uploadImagesToMulter = (bucketName) => multer({
+  //returns a multer middlware instance for handling the upload. should be called with request, response, error
+  const uploadMult = (bucket) => multer({
     storage: multerS3({
       s3: s3,
-      bucket: bucketName,
+      bucket: bucket,
       metadata: function (req, file, cb) {
         cb(null, { fieldName: file.fieldname });
       },
@@ -44,44 +64,42 @@ const s3 = new AWS.S3({
     fileFilter: checkFileType
   }).array('annonceImages',10);  //post request atarken kullanılması gerekn key değeri ve aynı anda maks. kaç dosya yüklenebilir
 
-uploadImagesToAws = (req, res, info) => {
-    if (!req.isAuthenticated()) return res.json({message: 'You have to login to upload files'});
-    const user = req.user.email;  //bucket'da her kullanıcı için bir klasör var.
-   
-    var annonceId = null;
-    if(req.query.annonceid) {
-      annonceId = req.query.annonceid
-    } else {
-      annonceId = crypto.randomBytes(12).toString('hex')
-    }
-    const fileLocation = user + '/annonce-' + annonceId
-    const uploadImages = uploadImagesToMulter(`${BUCKET_NAME}/${fileLocation}`)
-
-    uploadImages(req, res, err => {
-        if (err){
-            res.json({message: 'files could not uploaded', error: err})
-            return;
+  async function imageUploadMiddleware (req, res, next) {
+    return new Promise((resolve, reject) => {
+      uploadMult(BUCKET_NAME)(req, res, (err) => {
+        if (err) {
+          return reject(err);
         }
-        res.status(200).json({ files: req.files, message: 'images uploaded', annonceId})
+        resolve();
+      });
     })
+    .then(() => next())
+    .catch(next);
 }
 
-saveAnnonceToDatabase = (req, res) => {
-  if(!req.isAuthenticated()) return res.send('user not logged in')
+saveAnnonceToDatabase = async(req, res) => {  
+    try {
+        const fileLocations = req.files.map(file => file.location)
+        const newProduct = new ProductModel(req.body)
+        newProduct.images = fileLocations;
 
-    const user = req.user;
-    const annonceProps = req.body.annonceproperties;
-    const annonceImages = req.body.imagelocations;
+        console.log('product', newProduct)
+        const savedProduct = await newProduct.save();
+        console.log('New product has been saved successfully:', savedProduct);
+        res.json(savedProduct)
+    } catch (error) {
+        console.log("Error saving the product", error) 
+    }
+  }
+
+    /*const annonceImages = req.body.imagelocations;
     const annonceId = req.body.annonceid;
-
-    let newAnnonce = AnnonceModel(annonceProps)
     newAnnonce._id = new ObjectId(annonceId);
     newAnnonce.annonceImages = annonceImages;
     newAnnonce.sellerId = new ObjectId(user._id)
-
     uploadToUser(user, newAnnonce);
-    uploadToAnnonces(newAnnonce, res)
-}
+    uploadToAnnonces(newAnnonce, res)*/
+
 
 // save  annonce to the user's annonces
 uploadToUser = (user, newAnnonce, res) => {
@@ -152,7 +170,7 @@ removeAnnonce = async (req, res) => {
       }
       
       try {
-        var response = await AnnonceModel.deleteOne({_id: ObjectId(annonceId)})
+        var response = await ProductModel.deleteOne({_id: ObjectId(annonceId)})
         response = await UserModel.updateMany({_id: ObjectId(userId)}, 
           {
             $pull: {
@@ -173,7 +191,6 @@ removeAnnonce = async (req, res) => {
 
 removeAnnonceImagesFromAWS = async (req, res) => {
   if(!req.isAuthenticated()) return res.status(300);
-  console.log("sa")
 
   try {
       const userEmail = req.user.email;
@@ -213,7 +230,7 @@ updateAnnonce = async (req, res) => {
   const annonceProperties = req.body.annonceproperties;
 
   try {
-      let newAnnonce = AnnonceModel(annonceProperties)
+      let newAnnonce = ProductModel(annonceProperties)
       newAnnonce._id = new ObjectId(annonceId);
       newAnnonce.annonceImages = annonceImages;
       newAnnonce.sellerId = new ObjectId(userId)
@@ -223,7 +240,7 @@ updateAnnonce = async (req, res) => {
         $set: { "annonces.$": newAnnonce }
       };
       await UserModel.updateOne(query, updateDocument);
-      await AnnonceModel.replaceOne(
+      await ProductModel.replaceOne(
         {_id: ObjectId(annonceId)},
         newAnnonce)
 
@@ -237,8 +254,10 @@ updateAnnonce = async (req, res) => {
 
 const router = express.Router();
 
+router.post('/new',imageUploadMiddleware, saveAnnonceToDatabase);
+
+
 router.post('/imageupload', uploadImagesToAws)
-router.post('/create',saveAnnonceToDatabase);
 router.post('/remove/annonceimages', removeAnnonceImagesFromAWS)
 router.post('/update', updateAnnonce)
 router.post('/delete', removeAnnonce);

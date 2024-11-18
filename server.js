@@ -9,12 +9,13 @@ const connectToDatabase = require('./config/db.js');
 const UserModel = require('./models/UserModel.js')
 const ObjectId = require('mongoose').Types.ObjectId
 
-var authRouter = require('./auth');
+var userEndpoint = require('./user.js')
+var fileEndpoint = require('./file.js')
+
 var userRouter = require('./fetchUser.js');
-var annonceRouter = require('./createAnnonce.js');
 var searchRouter = require('./search.js')
-var findProductRouter = require('./findProduct.js');
-var searchProductRouter = require('./searchProduct.js');
+//var findProductRouter = require('./findProduct.js');
+//var searchProductRouter = require('./searchProduct.js');
 var addFavoritesRouter = require('./addfavorites.js');
 var profileSettingsRouter = require('./profileSettings.js');
 var chatRouter = require('./chat.js');
@@ -56,18 +57,23 @@ app.use(cors({origin:client_link, credentials: true}));
 app.enable('trust proxy')
 
 app.use(
+    /*express-session cookie kullanıyoruz. Passport.js login metodu  çağrıltıktan sonra cookie oluşturulur. Oluşturulan cookie bilgileri MongoDB'de saklanır.
+    Sadece Cookie ID'sı client'da saklanır. Browser otomatik olarak bu cookie ID'sini her request'te gönderir. Gelen ID'ye göre
+    database'de saklanan cookie'lere bakılır.
+    */
     session({
         name: 'signin-cookie',
         secret: "secret key",
         resave: false,
         saveUninitialized: true,
         proxy: true,
-        store: MongoDbStore.create({
+        store: MongoDbStore.create({ //Cookie bilgilerini Mongo database'de sakla. Browser'dan gelen cookie id'si ile database'dekini karşılaştır.
             mongoUrl: mongoUrl
         }),
         cookie: {
             sameSite: 'lax',
             secure: isProduction,
+            
             maxAge: 1000 * 60 * 60 * 24 * 30  //1 ay. milisaniye x saniye x dakika x saat
         }
     })
@@ -78,12 +84,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.get("/", (req, res) => res.send("Server Side Works!"));
-app.use('/', authRouter)
+app.use('/user', userEndpoint)
+app.use('/file', fileEndpoint)
+
+
 app.use('/fetchuser', userRouter)
-app.use('/newannonce', annonceRouter)
 app.use('/search', searchRouter)
-app.use('/product', findProductRouter)
-app.use('/searchproduct', searchProductRouter)
 app.use('/favorites', addFavoritesRouter);
 app.use('/profile', profileSettingsRouter);
 app.use('/chat', chatRouter);

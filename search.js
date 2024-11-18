@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const express = require('express');
-const AnnonceModel = require('./models/AnnonceModel.js')
+const ProductModel = require('./models/ProductModel.js')
 const UserModel = require('./models/UserModel.js')
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -17,7 +17,7 @@ getItems = (req,res) => {
         })
     }
 
-    AnnonceModel.find().then(result => {
+    ProductModel.find().then(result => {
         if(favoritesArray.length <= 0) return res.json({productArray: result});
 
         let productArray = result.map((item) => {
