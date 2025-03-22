@@ -13,7 +13,7 @@
 
 Rego-backend is the backend code for the project [www.rego.live](https://www.rego.live). 
 It provides the server-side logic for a secondhand shopping website similar to ebay.com or finn.no. 
-For frontend code, see [rego-frontend](https://github.com/JakobGokpinar/Rego-frontend)
+For frontend code, see [rego-frontend](https://github.com/JakobGokpinar/Rego-frontend).
 The backend code handles various functionalities such as user authentication, product search, and communication between users.
 
 ## Features
