@@ -39,7 +39,7 @@ const app = express();
 var server = http.createServer(app); 
 const io = new Server(server, { 
     cors: {
-        origin: client_link
+        origin: ['http://localhost:3000', 'https://www.rego.live']
     }
 })
 
@@ -52,7 +52,7 @@ app.use(express.json({limit: '50mb'}))  // setting limit to 50mb in order to sav
 
 app.use(express.urlencoded({ extended: false, limit: '50mb'})); //setting limit for the same reason
 
-app.use(cors({origin:client_link, credentials: true}));
+app.use(cors({origin: ['http://localhost:3000', 'https://www.rego.live'], credentials: true}));
 app.enable('trust proxy')
 
 app.use(
